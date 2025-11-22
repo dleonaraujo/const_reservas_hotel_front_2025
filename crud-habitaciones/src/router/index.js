@@ -9,11 +9,32 @@ import Clientes from '../views/ClientesView.vue'
 
 const routes = [
   { path: '/', name: 'Login', component: Login },
-  { path: '/home', name: 'Home', component: Home },
-  { path: '/habitaciones', name: 'Habitaciones', component: Habitaciones },
-  { path: '/reservas', name: 'Reservas', component: Reservas },
-  { path: '/servicios', name: 'Servicios', component: Servicios },
-  { path: '/clientes', name: 'Clientes', component: Clientes },
+  { 
+    path: '/home', 
+    component: Home,
+    children: [
+      { 
+        path: '/habitaciones', 
+        name: 'Habitaciones', 
+        component: Habitaciones 
+      },
+      { 
+        path: '/reservas', 
+        name: 'Reservas', 
+        component: Reservas 
+      },
+      { 
+        path: '/servicios', 
+        name: 'Servicios', 
+        component: Servicios 
+      },
+      { 
+        path: '/clientes', 
+        name: 'Clientes', 
+        component: Clientes 
+      },
+    ]
+  },
 ]
 
 const router = createRouter({
