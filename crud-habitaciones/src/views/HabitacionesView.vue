@@ -130,7 +130,7 @@ const cargarHabitaciones = async () => {
   if (!token) { error.value = 'No hay token de autenticación.'; return; }
 
   try {
-    const res = await axios.get('http://localhost:5000/api/habitaciones/', {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/habitaciones/`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     habitaciones.value = res.data;
@@ -146,7 +146,7 @@ const crearHabitacion = async () => {
   }
 
   try {
-    await axios.post('http://localhost:5000/api/habitaciones/', nuevaHabitacion.value, {
+    await axios.post(`${import.meta.env.VITE_API_URL}/habitaciones/`, nuevaHabitacion.value, {
       headers: { Authorization: `Bearer ${token}` }
     });
     nuevaHabitacion.value = { numero: '', tipo_id: '', precio: '' };
@@ -158,7 +158,7 @@ const crearHabitacion = async () => {
 
 const actualizarHabitacion = async (h) => {
   try {
-    await axios.put(`http://localhost:5000/api/habitaciones/${h.id}`, {
+    await axios.put(`${import.meta.env.VITE_API_URL}/habitaciones/${h.id}`, {
       numero: h.numero,
       tipo_id: h.tipo_id,
       precio: h.precio,
@@ -176,7 +176,7 @@ const eliminarHabitacion = async (h) => {
   if (!confirm('¿Eliminar habitación? Esto es lógico (inactivo).')) return;
 
   try {
-    await axios.delete(`http://localhost:5000/api/habitaciones/${h.id}`, {
+    await axios.delete(`${import.meta.env.VITE_API_URL}/habitaciones/${h.id}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     cargarHabitaciones();

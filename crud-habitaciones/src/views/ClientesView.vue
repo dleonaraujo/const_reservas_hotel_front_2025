@@ -126,7 +126,7 @@ const token = localStorage.getItem('token')
 
 const cargar = async () => {
   try {
-    const res = await axios.get('http://localhost:5000/api/clientes/', {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/clientes/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     clientes.value = res.data
@@ -142,7 +142,7 @@ const crear = async () => {
   }
 
   try {
-    await axios.post('http://localhost:5000/api/clientes/', nuevo.value, {
+    await axios.post(`${import.meta.env.VITE_API_URL}/clientes/`, nuevo.value, {
       headers: { Authorization: `Bearer ${token}` },
     })
     nuevo.value = { nombre: '', email: '', telefono: '' }
@@ -155,7 +155,7 @@ const crear = async () => {
 const actualizar = async (c) => {
   try {
     await axios.put(
-      `http://localhost:5000/api/clientes/${c.id}`,
+      `${import.meta.env.VITE_API_URL}/clientes/${c.id}`,
       {
         nombre: c.nombre,
         email: c.email,
@@ -174,7 +174,7 @@ const desactivar = async (c) => {
 
   try {
     await axios.put(
-      `http://localhost:5000/api/clientes/${c.id}/desactivar`,
+      `${import.meta.env.VITE_API_URL}/clientes/${c.id}/desactivar`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     )

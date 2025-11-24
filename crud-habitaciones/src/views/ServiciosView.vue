@@ -119,7 +119,7 @@ const token = localStorage.getItem('token')
 
 const cargar = async () => {
   try {
-    const res = await axios.get('http://localhost:5000/api/servicios/', {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/servicios/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     servicios.value = res.data
@@ -135,7 +135,7 @@ const crear = async () => {
   }
 
   try {
-    await axios.post('http://localhost:5000/api/servicios/', nuevo.value, {
+    await axios.post('${import.meta.env.VITE_API_URL}/servicios/', nuevo.value, {
       headers: { Authorization: `Bearer ${token}` },
     })
     nuevo.value = { nombre: '', precio: '' }
@@ -148,7 +148,7 @@ const crear = async () => {
 const actualizar = async (s) => {
   try {
     await axios.put(
-      `http://localhost:5000/api/servicios/${s.id}`,
+      `${import.meta.env.VITE_API_URL}/servicios/${s.id}`,
       {
         nombre: s.nombre,
         precio: s.precio,
@@ -166,7 +166,7 @@ const desactivar = async (s) => {
 
   try {
     await axios.put(
-      `http://localhost:5000/api/servicios/${s.id}/desactivar`,
+      `${import.meta.env.VITE_API_URL}/servicios/${s.id}/desactivar`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     )
@@ -180,7 +180,7 @@ const eliminar = async (s) => {
   if (!confirm('Eliminar permanentemente?')) return
 
   try {
-    await axios.delete(`http://localhost:5000/api/servicios/${s.id}`, {
+    await axios.delete(`${import.meta.env.VITE_API_URL}/servicios/${s.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     cargar()

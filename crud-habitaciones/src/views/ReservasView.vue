@@ -162,7 +162,7 @@ const cargarReservas = async () => {
   error.value = "";
 
   try {
-    const res = await axios.get("http://localhost:5000/api/reservas/", {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/reservas/`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -192,7 +192,7 @@ const crearReserva = async () => {
 
   try {
     await axios.post(
-      "http://localhost:5000/api/reservas/registrar",
+      `${import.meta.env.VITE_API_URL}/reservas/registrar`,
       {
         cliente_id: nuevaReserva.value.cliente_id,
         fecha_inicio: nuevaReserva.value.fecha_inicio,
@@ -218,7 +218,7 @@ const crearReserva = async () => {
 const actualizarReserva = async r => {
   try {
     await axios.put(
-      `http://localhost:5000/api/reservas/${r.id}`,
+      `${import.meta.env.VITE_API_URL}/reservas/${r.id}`,
       {
         cliente_id: r.cliente_id,
         fecha_inicio: r.fecha_inicio,
@@ -239,7 +239,7 @@ const actualizarHabitaciones = async r => {
 
   try {
     await axios.put(
-      `http://localhost:5000/api/reservas/${r.id}/habitaciones`,
+      `${import.meta.env.VITE_API_URL}/reservas/${r.id}/habitaciones`,
       { habitaciones: ids },
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -255,7 +255,7 @@ const cancelarReserva = async r => {
 
   try {
     await axios.put(
-      `http://localhost:5000/api/reservas/${r.id}/cancelar`,
+      `${import.meta.env.VITE_API_URL}/reservas/${r.id}/cancelar`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -271,7 +271,7 @@ const eliminarReserva = async r => {
 
   try {
     await axios.delete(
-      `http://localhost:5000/api/reservas/${r.id}`,
+      `${import.meta.env.VITE_API_URL}/reservas/${r.id}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     cargarReservas();
