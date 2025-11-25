@@ -17,8 +17,13 @@
       <h3>Nueva Reserva</h3>
       <div class="form-grid">
         <div class="input-group">
-          <label>Cliente ID</label>
-          <input v-model="nuevaReserva.cliente_id" placeholder="ID del cliente" type="number" />
+          <label>Cliente (DNI)</label>
+          <select v-model="nuevaReserva.cliente_id" class="table-select">
+            <option value="">Selecciona un cliente</option>
+            <option v-for="c in clientes" :key="c.id" :value="c.id">
+              {{ c.dni }} - {{ c.nombre }}
+            </option>
+          </select>
         </div>
         <div class="input-group">
           <label>Fecha Inicio</label>
@@ -29,8 +34,12 @@
           <input v-model="nuevaReserva.fecha_fin" type="date" />
         </div>
         <div class="input-group">
-          <label>Habitaciones (IDs separados por coma)</label>
-          <input v-model="nuevaReserva.habitaciones_str" placeholder="Ej: 1,2,5" />
+          <label>Habitaciones</label>
+          <select v-model="nuevaReserva.habitaciones_ids" multiple class="table-select" size="3">
+            <option v-for="h in habitaciones" :key="h.id" :value="h.id">
+              Habitación {{ h.numero }}
+            </option>
+          </select>
         </div>
         <div class="button-group">
           <button @click="crearReserva" class="btn-create">
@@ -54,6 +63,13 @@
       {{ error }}
     </div>
 
+    <div v-if="success" class="alert alert-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      {{ success }}
+    </div>
+
     <div v-if="!reservas.length && !error" class="alert alert-info">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"></circle>
@@ -69,7 +85,7 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Cliente ID</th>
+            <th>DNI Cliente</th>
             <th>Fecha Inicio</th>
             <th>Fecha Fin</th>
             <th>Estado</th>
@@ -84,7 +100,11 @@
               <span class="badge">{{ r.id }}</span>
             </td>
             <td>
-              <input v-model="r.cliente_id" class="table-input small" type="number" />
+              <select v-model="r.cliente_id" class="table-select">
+                <option v-for="c in clientes" :key="c.id" :value="c.id">
+                  {{ c.dni }} - {{ c.nombre }}
+                </option>
+              </select>
             </td>
             <td>
               <input v-model="r.fecha_inicio" class="table-input" type="date" />
@@ -103,7 +123,11 @@
               <span class="total-amount">${{ r.total }}</span>
             </td>
             <td>
-              <input v-model="r.habitaciones_str" class="table-input" placeholder="1,2,3" />
+              <select v-model="r.habitaciones_ids" multiple class="table-select" size="2">
+                <option v-for="h in habitaciones" :key="h.id" :value="h.id">
+                  Habitación {{ h.numero }}
+                </option>
+              </select>
             </td>
             <td>
               <div class="action-buttons">
@@ -147,7 +171,11 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 
 const reservas = ref([]);
+const clientes = ref([]);
+const habitaciones = ref([]);
+
 const error = ref("");
+const success = ref("");
 
 const token = localStorage.getItem("token");
 
@@ -155,11 +183,12 @@ const nuevaReserva = ref({
   cliente_id: "",
   fecha_inicio: "",
   fecha_fin: "",
-  habitaciones_str: ""
+  habitaciones_ids: []
 });
 
 const cargarReservas = async () => {
   error.value = "";
+  success.value = "";
 
   try {
     const res = await axios.get(`${import.meta.env.VITE_API_URL}/reservas/`, {
@@ -168,59 +197,93 @@ const cargarReservas = async () => {
 
     reservas.value = res.data.map(r => ({
       ...r,
-      habitaciones_str: r.habitaciones.map(h => h.id).join(",")
+      fecha_inicio: r.fecha_inicio ? r.fecha_inicio.slice(0, 10) : "",
+      fecha_fin: r.fecha_fin ? r.fecha_fin.slice(0, 10) : "",
+      habitaciones_ids: r.habitaciones ? r.habitaciones.map(h => h.id) : []
     }));
+
   } catch (err) {
-    error.value = err.response?.data.msg || "Error al cargar reservas";
+    error.value = err.response?.data?.msg || "Error al cargar reservas";
+  }
+};
+
+const cargarClientes = async () => {
+  try {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/clientes/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    clientes.value = res.data;
+  } catch (err) {
+    console.error("Error al cargar clientes:", err);
+  }
+};
+
+const cargarHabitaciones = async () => {
+  try {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/habitaciones/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    habitaciones.value = res.data;
+  } catch (err) {
+    console.error("Error al cargar habitaciones:", err);
   }
 };
 
 const crearReserva = async () => {
+  error.value = "";
+  success.value = "";
+
   if (
     !nuevaReserva.value.cliente_id ||
     !nuevaReserva.value.fecha_inicio ||
     !nuevaReserva.value.fecha_fin ||
-    !nuevaReserva.value.habitaciones_str
+    nuevaReserva.value.habitaciones_ids.length === 0
   ) {
-    alert("Completa todos los campos");
+    error.value = "Completa todos los campos";
     return;
   }
-
-  const habitaciones_ids = nuevaReserva.value.habitaciones_str
-    .split(",")
-    .map(Number);
 
   try {
     await axios.post(
       `${import.meta.env.VITE_API_URL}/reservas/registrar`,
       {
-        cliente_id: nuevaReserva.value.cliente_id,
+        cliente_id: parseInt(nuevaReserva.value.cliente_id),
         fecha_inicio: nuevaReserva.value.fecha_inicio,
         fecha_fin: nuevaReserva.value.fecha_fin,
-        habitaciones: habitaciones_ids
+        habitaciones: nuevaReserva.value.habitaciones_ids.map(id => parseInt(id))
       },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
+    success.value = "Reserva creada exitosamente";
+    
     nuevaReserva.value = {
       cliente_id: "",
       fecha_inicio: "",
       fecha_fin: "",
-      habitaciones_str: ""
+      habitaciones_ids: []
     };
 
-    cargarReservas();
+    await cargarReservas();
+
+    setTimeout(() => {
+      success.value = "";
+    }, 3000);
+
   } catch (err) {
-    error.value = err.response?.data.msg || "Error al crear reserva";
+    error.value = err.response?.data?.msg || "Error al crear reserva";
   }
 };
 
 const actualizarReserva = async r => {
+  error.value = "";
+  success.value = "";
+
   try {
     await axios.put(
       `${import.meta.env.VITE_API_URL}/reservas/${r.id}`,
       {
-        cliente_id: r.cliente_id,
+        cliente_id: parseInt(r.cliente_id),
         fecha_inicio: r.fecha_inicio,
         fecha_fin: r.fecha_fin,
         estado: r.estado
@@ -228,30 +291,46 @@ const actualizarReserva = async r => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    cargarReservas();
+    success.value = "Reserva actualizada exitosamente";
+    await cargarReservas();
+
+    setTimeout(() => {
+      success.value = "";
+    }, 3000);
+
   } catch (err) {
-    error.value = err.response?.data.msg || "Error al actualizar";
+    error.value = err.response?.data?.msg || "Error al actualizar";
   }
 };
 
 const actualizarHabitaciones = async r => {
-  const ids = r.habitaciones_str.split(",").map(Number);
+  error.value = "";
+  success.value = "";
 
   try {
     await axios.put(
       `${import.meta.env.VITE_API_URL}/reservas/${r.id}/habitaciones`,
-      { habitaciones: ids },
+      { habitaciones: r.habitaciones_ids.map(id => parseInt(id)) },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    cargarReservas();
+    success.value = "Habitaciones actualizadas exitosamente";
+    await cargarReservas();
+
+    setTimeout(() => {
+      success.value = "";
+    }, 3000);
+
   } catch (err) {
-    error.value = err.response?.data.msg || "Error al actualizar habitaciones";
+    error.value = err.response?.data?.msg || "Error al actualizar habitaciones";
   }
 };
 
 const cancelarReserva = async r => {
   if (!confirm("¿Cancelar reserva?")) return;
+
+  error.value = "";
+  success.value = "";
 
   try {
     await axios.put(
@@ -260,27 +339,47 @@ const cancelarReserva = async r => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    cargarReservas();
+    success.value = "Reserva cancelada exitosamente";
+    await cargarReservas();
+
+    setTimeout(() => {
+      success.value = "";
+    }, 3000);
+
   } catch (err) {
-    error.value = err.response?.data.msg || "Error al cancelar";
+    error.value = err.response?.data?.msg || "Error al cancelar";
   }
 };
 
 const eliminarReserva = async r => {
   if (!confirm("¿Eliminar definitivamente esta reserva?")) return;
 
+  error.value = "";
+  success.value = "";
+
   try {
     await axios.delete(
       `${import.meta.env.VITE_API_URL}/reservas/${r.id}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    cargarReservas();
+    
+    success.value = "Reserva eliminada exitosamente";
+    await cargarReservas();
+
+    setTimeout(() => {
+      success.value = "";
+    }, 3000);
+
   } catch (err) {
-    error.value = err.response?.data.msg || "Error al eliminar";
+    error.value = err.response?.data?.msg || "Error al eliminar";
   }
 };
 
-onMounted(cargarReservas);
+onMounted(() => {
+  cargarReservas();
+  cargarClientes();
+  cargarHabitaciones();
+});
 </script>
 
 <style scoped>
@@ -430,6 +529,12 @@ onMounted(cargarReservas);
   border: 1px solid #fadbd8;
 }
 
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
 .alert-info {
   background-color: #e8f4f8;
   color: #2980b9;
@@ -497,10 +602,6 @@ onMounted(cargarReservas);
   font-size: 14px;
   transition: all 0.2s ease;
   outline: none;
-}
-
-.table-input.small {
-  width: 70px;
 }
 
 .table-input:focus {

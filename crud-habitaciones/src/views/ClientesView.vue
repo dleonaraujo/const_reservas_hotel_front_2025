@@ -21,6 +21,10 @@
           <input v-model="nuevo.nombre" placeholder="Ej: Juan Pérez" />
         </div>
         <div class="input-group">
+          <label>DNI</label>
+          <input v-model="nuevo.dni" placeholder="Ej: 12345678" maxlength="8" />
+        </div>
+        <div class="input-group">
           <label>Email</label>
           <input v-model="nuevo.email" placeholder="Ej: juan@email.com" type="email" />
         </div>
@@ -66,6 +70,7 @@
           <tr>
             <th>ID</th>
             <th>Nombre</th>
+            <th>DNI</th>
             <th>Email</th>
             <th>Teléfono</th>
             <th>Acciones</th>
@@ -78,6 +83,9 @@
             </td>
             <td>
               <input v-model="c.nombre" class="table-input" />
+            </td>
+            <td>
+              <input v-model="c.dni" class="table-input" maxlength="8" />
             </td>
             <td>
               <input v-model="c.email" class="table-input" type="email" />
@@ -121,7 +129,7 @@ import axios from 'axios'
 
 const clientes = ref([])
 const error = ref('')
-const nuevo = ref({ nombre: '', email: '', telefono: '' })
+const nuevo = ref({ nombre: '', email: '', telefono: '', dni: '' })
 const token = localStorage.getItem('token')
 
 const cargar = async () => {
@@ -130,6 +138,7 @@ const cargar = async () => {
       headers: { Authorization: `Bearer ${token}` },
     })
     clientes.value = res.data
+    error.value = ''
   } catch (err) {
     error.value = 'Error al cargar clientes'
   }
@@ -137,7 +146,7 @@ const cargar = async () => {
 
 const crear = async () => {
   if (!nuevo.value.nombre || !nuevo.value.email) {
-    alert('Nombre y email son obligatorios')
+    error.value = 'Nombre y email son obligatorios'
     return
   }
 
@@ -145,10 +154,11 @@ const crear = async () => {
     await axios.post(`${import.meta.env.VITE_API_URL}/clientes/`, nuevo.value, {
       headers: { Authorization: `Bearer ${token}` },
     })
-    nuevo.value = { nombre: '', email: '', telefono: '' }
+    nuevo.value = { nombre: '', email: '', telefono: '', dni: '' }
+    error.value = ''
     cargar()
   } catch (err) {
-    error.value = 'Error al crear'
+    error.value = err.response?.data?.msg || 'Error al crear cliente'
   }
 }
 
@@ -160,17 +170,19 @@ const actualizar = async (c) => {
         nombre: c.nombre,
         email: c.email,
         telefono: c.telefono,
+        dni: c.dni,
       },
       { headers: { Authorization: `Bearer ${token}` } }
     )
+    error.value = ''
     cargar()
   } catch (err) {
-    error.value = 'Error al actualizar'
+    error.value = err.response?.data?.msg || 'Error al actualizar cliente'
   }
 }
 
 const desactivar = async (c) => {
-  if (!confirm('Desactivar cliente lógicamente?')) return
+  if (!confirm('¿Desactivar cliente lógicamente?')) return
 
   try {
     await axios.put(
@@ -178,6 +190,7 @@ const desactivar = async (c) => {
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     )
+    error.value = ''
     cargar()
   } catch (err) {
     error.value = 'Error al desactivar'
@@ -185,12 +198,13 @@ const desactivar = async (c) => {
 }
 
 const eliminar = async (c) => {
-  if (!confirm('Eliminar PERMANENTEMENTE?')) return
+  if (!confirm('¿Eliminar PERMANENTEMENTE?')) return
 
   try {
-    await axios.delete(`http://localhost:5000/api/clientes/${c.id}`, {
+    await axios.delete(`${import.meta.env.VITE_API_URL}/clientes/${c.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
+    error.value = ''
     cargar()
   } catch (err) {
     error.value = 'Error al eliminar'
@@ -496,7 +510,7 @@ onMounted(cargar)
   }
 
   .clientes-table {
-    min-width: 800px;
+    min-width: 900px;
   }
 }
 </style>

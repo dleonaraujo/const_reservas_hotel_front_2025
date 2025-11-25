@@ -21,8 +21,13 @@
           <input v-model="nuevaHabitacion.numero" placeholder="Ej: 101" />
         </div>
         <div class="input-group">
-          <label>Tipo ID</label>
-          <input v-model="nuevaHabitacion.tipo_id" placeholder="Ej: 1" type="number" />
+          <label>Tipo de Habitación</label>
+          <select v-model="nuevaHabitacion.tipo_id">
+            <option disabled value="">Selecciona un tipo</option>
+            <option v-for="t in tipos" :key="t.id" :value="t.id">
+              {{ t.nombre }}
+            </option>
+          </select>
         </div>
         <div class="input-group">
           <label>Precio</label>
@@ -66,7 +71,7 @@
           <tr>
             <th>ID</th>
             <th>Número</th>
-            <th>Tipo ID</th>
+            <th>Tipo Habitación</th>
             <th>Precio</th>
             <th>Estado</th>
             <th>Acciones</th>
@@ -81,7 +86,11 @@
               <input v-model="h.numero" class="table-input" />
             </td>
             <td>
-              <input v-model="h.tipo_id" class="table-input" type="number" />
+              <select v-model="h.tipo_id" class="table-input">
+                <option v-for="t in tipos" :key="t.id" :value="t.id">
+                  {{ t.nombre }}
+                </option>
+              </select>
             </td>
             <td>
               <input v-model="h.precio" class="table-input" type="number" step="0.01" />
@@ -120,6 +129,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 const habitaciones = ref([]);
+const tipos = ref([]);
 const error = ref('');
 const nuevaHabitacion = ref({ numero: '', tipo_id: '', precio: '' });
 
@@ -138,6 +148,18 @@ const cargarHabitaciones = async () => {
     error.value = err.response?.data.msg || 'Error al cargar habitaciones';
   }
 };
+
+const cargarTipos = async () => {
+  try {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/tipos-habitacion/`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    tipos.value = res.data;
+  } catch (err) {
+    console.log("Error al cargar tipos");
+  }
+};
+
 
 const crearHabitacion = async () => {
   if (!nuevaHabitacion.value.numero || !nuevaHabitacion.value.tipo_id || !nuevaHabitacion.value.precio) {
@@ -185,7 +207,12 @@ const eliminarHabitacion = async (h) => {
   }
 };
 
-onMounted(cargarHabitaciones);
+
+onMounted(() => {
+  cargarHabitaciones();
+  cargarTipos();
+});
+
 </script>
 
 <style scoped>
@@ -470,6 +497,21 @@ onMounted(cargarHabitaciones);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }
+
+select {
+  padding: 8px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+}
+
+select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
 
 @media (max-width: 768px) {
   .habitaciones-container {
