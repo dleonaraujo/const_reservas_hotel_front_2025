@@ -54,29 +54,59 @@ const opcion = ref('')
 
 const menuItems = [
   { 
-    value: 'habitaciones', 
-    label: 'Habitaciones', 
-    icon: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line>'
+    value: "habitaciones",
+    label: "Habitaciones",
+    icon: `
+      <path d="M3 10h18"></path>
+      <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"></path>
+      <path d="M4 10v8h16v-8"></path>
+    `
   },
   { 
-    value: 'reservas', 
-    label: 'Reservas', 
-    icon: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>'
+    value: "reservas",
+    label: "Reservas",
+    icon: `
+      <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+      <path d="M16 2v4"></path>
+      <path d="M8 2v4"></path>
+      <line x1="3" y1="10" x2="21" y2="10"></line>
+      <circle cx="12" cy="16" r="3"></circle>
+    `
   },
   { 
-    value: 'servicios', 
-    label: 'Servicios', 
-    icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>'
+    value: "servicios",
+    label: "Servicios",
+    icon: `
+      <path d="M12 2a5 5 0 0 1 5 5v3H7V7a5 5 0 0 1 5-5Z"></path>
+      <path d="M5 14h14"></path>
+      <path d="M9 18h6"></path>
+    `
   },
   { 
-    value: 'clientes', 
-    label: 'Clientes', 
-    icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>'
+    value: "clientes",
+    label: "Clientes",
+    icon: `
+      <circle cx="12" cy="7" r="4"></circle>
+      <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
+    `
   },
   {
-    value: 'tipos-habitacion', 
-    label: 'Tipos de Habitaciones', 
-    icon: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line>'
+    value: "tipos-habitacion",
+    label: "Tipos de Habitaciones",
+    icon: `
+      <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+    `
+  },
+  {
+    value: "dashboard-reporte",
+    label: "Dashboard de Reportes",
+    icon: `
+      <path d="M3 3v18h18"></path>
+      <rect x="7" y="12" width="3" height="6"></rect>
+      <rect x="12" y="8" width="3" height="10"></rect>
+      <rect x="17" y="5" width="3" height="13"></rect>
+    `
   }
 ]
 

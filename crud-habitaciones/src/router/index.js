@@ -8,6 +8,8 @@ import Reservas from '../views/ReservasView.vue'
 import Servicios from '../views/ServiciosView.vue'
 import Clientes from '../views/ClientesView.vue'
 import TiposHabitacion from '../views/TiposHabitacion.vue'
+import DashboardReporte from '../views/DashboardReporte.vue'
+
 
 const routes = [
   { path: '/', name: 'Login', component: Login },
@@ -38,8 +40,13 @@ const routes = [
       },
       {
         path: '/tipos-habitacion',
-        name: 'Tipos de Habitacion',
+        name: 'Tipos-Habitacion',
         component: TiposHabitacion
+      },
+      {
+        path: '/dashboard-reporte',
+        name:'Dashboard-Reporte',
+        component: DashboardReporte
       },
     ]
   },
