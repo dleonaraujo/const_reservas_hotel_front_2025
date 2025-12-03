@@ -7,6 +7,7 @@ import Habitaciones from '../views/HabitacionesView.vue'
 import Reservas from '../views/ReservasView.vue'
 import Servicios from '../views/ServiciosView.vue'
 import Clientes from '../views/ClientesView.vue'
+import TiposHabitacion from '../views/TiposHabitacion.vue'
 
 const routes = [
   { path: '/', name: 'Login', component: Login },
@@ -34,6 +35,11 @@ const routes = [
         path: '/clientes', 
         name: 'Clientes', 
         component: Clientes 
+      },
+      {
+        path: '/tipos-habitacion',
+        name: 'Tipos de Habitacion',
+        component: TiposHabitacion
       },
     ]
   },
